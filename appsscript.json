@@ -1,0 +1,9 @@
+{
+  "timeZone": "Europe/Amsterdam",
+  "runtimeVersion": "V8",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "oauthScopes": [
+  ]
+}

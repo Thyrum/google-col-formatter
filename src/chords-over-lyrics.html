@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Use this CSS stylesheet to ensure that add-ons styling matches the default Google Docs styles -->
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+
+    <style>
+      .flex {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .branding-below {
+        bottom: 42px;
+        top: 0;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      #chords-over-lyrics-input {
+        width: 100%;
+        flex-grow: 1;
+        resize: none;
+        overflow: scroll;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sidebar flex branding-below">
+      <textarea id="chords-over-lyrics-input" name="chords-over-lyrics-input" placeholder="Insert Chord-over-lyrics here!"></textarea>
+      <div>
+        <p>
+          <button class="action" id="update_doc" onclick="toDoc()">Insert as table</button>
+        </p>
+      </div>
+    </div>
+
+    <div class="sidebar bottom">
+        <span class="gray">COL table formatter by Thyrum <i>v0.1</i></span>
+    </div>
+
+    <script>
+      function toDoc() {
+        google.script.run.insertCOL(document.getElementById('chords-over-lyrics-input').value);
+      }
+    </script>
+  </body>
+</html>
