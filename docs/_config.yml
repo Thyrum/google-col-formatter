@@ -1,0 +1,4 @@
+remote_theme: mmistakes/minimal-mistakes
+title: COL Formatter
+description: Automatically format chords in a table using Chord Over Lyrics format
+author: Aron de Jong
