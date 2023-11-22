@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://ssl.gstatic.com/docs/script/css/add-ons1.css"
+    />
+  </head>
+  <body>
+    <style>
+      .container {
+        height: 425px;
+        display: flex;
+        flex-direction: column;
+      }
+      #top {
+        flex-grow: 1;
+      }
+      #songDialog {
+        width: 100%;
+        height: 100%;
+        font-family: "Ubuntu Mono", monospace;
+      }
+      .wait,
+      .wait * {
+        cursor: wait !important;
+      }
+    </style>
+    <div class="container">
+      <div id="top">
+        <textarea
+          type="text"
+          id="songDialog"
+          name="songDialog"
+          placeholder="Insert song here"
+        ></textarea>
+      </div>
+      <div id="bottom">
+        <button
+          id="songDialogButton"
+          name="songDialogButton"
+          onclick="insertTable()"
+          class="action"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function closeDialog() {
+        document.body.classList.remove("wait");
+        google.script.host.close();
+      }
+      function onError(error) {
+        alert("Something went wrong: " + error.message);
+        document.body.classList.remove("wait");
+        google.script.host.close();
+      }
+      function insertTable() {
+        document.body.classList.add("wait");
+        var song = document.getElementById("songDialog").value;
+        google.script.run
+          .withSuccessHandler(closeDialog)
+          .withFailureHandler(onError)
+          .insertSongTable(song);
+      }
+    </script>
+  </body>
+</html>
