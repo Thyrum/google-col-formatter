@@ -1,4 +1,10 @@
-import { CellStyle, HeaderStyle, ChorusStyle, ChordStyle } from "./styles";
+import {
+  CellStyle,
+  ParagraphStyle,
+  HeaderStyle,
+  ChorusStyle,
+  ChordStyle,
+} from "./styles";
 
 function onOpen() {
   const ui = DocumentApp.getUi();
@@ -65,6 +71,7 @@ function splitParagraphs(text) {
 
 function formatParagraph(paragraph, previousWasChorus = false) {
   const text = paragraph.editAsText();
+  text.setAttributes(ParagraphStyle);
   const lines = text.getText().split("\r");
 
   let chorus = previousWasChorus;
