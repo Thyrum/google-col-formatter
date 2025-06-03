@@ -38,19 +38,13 @@ function isChordLine(line) {
     return false;
   }
   const words = line.split(/\s+/);
-  for (let i = 0; i < words.length; i += 1) {
-    if (
-      words[i].length !== 0 &&
-      !/[A-G]/.test(words[i][0]) &&
-      words[i][0] !== "|" &&
-      words[i][0] !== "/" &&
-      !(words[i][0] === "(" && words[i][words[i].length - 1] === ")")
-    ) {
-      return false;
-    }
-  }
-
-  return true;
+  return words.every(
+    (word) =>
+      word.length === 0 ||
+      /[A-G|/]/.test(word[0]) ||
+      /^\(.*\)$/.test(word) ||
+      /^x[\d]+$/.test(word),
+  );
 }
 
 function splitParagraphs(text) {
