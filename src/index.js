@@ -24,7 +24,7 @@ function isSectionHeader(line) {
 }
 
 function isChorus(paragraph) {
-  return paragraph.match(/^\[(Chorus|Refrein).*\].*$/m);
+  return paragraph.match(/^\[(Chorus|Refrein|CHORUS|REFREIN).*\].*$/m);
 }
 
 function isChordLine(line) {
@@ -37,7 +37,8 @@ function isChordLine(line) {
       words[i].length !== 0 &&
       !/[A-G]/.test(words[i][0]) &&
       words[i][0] !== "|" &&
-      words[i][0] !== "/"
+      words[i][0] !== "/" &&
+      !(words[i][0] === "(" && words[i][words[i].length - 1] === ")")
     ) {
       return false;
     }
