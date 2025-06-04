@@ -1,0 +1,17 @@
+---
+---
+
+@import "minima";
+
+.site-title::before {
+  background-image: url({{"/favicon.png"|relative_url}});
+  content: "";
+  display: inline-block;
+  position: relative;
+  width: 32px;
+  top: 7px;
+  height: 32px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-right: 8px;
+}

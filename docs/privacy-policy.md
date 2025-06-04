@@ -1,3 +1,8 @@
+---
+layout: page
+title: "Privacy Policy"
+permalink: /privacy/
+---
 The privacy policy is simple: no personal data shared with us will be
 given to any third party, under any circumstances. Your data will also
 never be used by us for any purpose without specific permission.

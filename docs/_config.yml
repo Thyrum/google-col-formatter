@@ -14,11 +14,11 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: COL Formatter
-email: jongade@protonmail.com
+email: arondejong2000@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  A site describing the COL Formatter created by Aron de Jong
-baseurl: "/google-col-formatter/" # the subpath of your site, e.g. /blog
-url: "https://thyrum.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+  A tool for formatting music in Google Docs tables using the Chord Over Lyrics format.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://col.dejongbos.nl" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
 # github_username:  jekyll
 
@@ -26,8 +26,11 @@ url: "https://thyrum.github.io" # the base hostname & protocol for your site, e.
 markdown: kramdown
 theme: minima
 plugins:
-  - jekyll-feed
-
+  - jekyll-seo-tag
+  - jekyll-compress-images
+webp:
+  img_dir: ["/assets/img"]
+  nested: true
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
 # to override the default setting.
