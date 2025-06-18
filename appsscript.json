@@ -1,29 +1,22 @@
 {
-  "timeZone": "Europe/Amsterdam",
-  "runtimeVersion": "V8",
+  "timeZone": "Europe/Brussels",
   "dependencies": {
-    "enabledAdvancedServices": [
-      {
-        "userSymbol": "Docs",
-        "version": "v1",
-        "serviceId": "docs"
-      }
-    ],
-    "libraries": [
-      {
-        "userSymbol": "OAuth2",
-        "libraryId": "1B7FSrk5Zi6L1rSxxTDgDEUsPzlukDsi4KGuTMorsTQHhGBzBkMun4iDF",
-        "version": "38"
-      }
-    ]
+    "enabledAdvancedServices": [{
+      "userSymbol": "Docs",
+      "serviceId": "docs",
+      "version": "v1"
+    }],
+    "libraries": [{
+      "userSymbol": "OAuth2",
+      "libraryId": "1B7FSrk5Zi6L1rSxxTDgDEUsPzlukDsi4KGuTMorsTQHhGBzBkMun4iDF",
+      "version": "38"
+    }]
   },
   "webapp": {
     "access": "ANYONE",
     "executeAs": "USER_ACCESSING"
   },
   "exceptionLogging": "STACKDRIVER",
-  "oauthScopes": [
-    "https://www.googleapis.com/auth/script.container.ui",
-    "https://www.googleapis.com/auth/documents.currentonly"
-  ]
+  "oauthScopes": ["https://www.googleapis.com/auth/script.container.ui", "https://www.googleapis.com/auth/documents.currentonly"],
+  "runtimeVersion": "V8"
 }

@@ -9,7 +9,7 @@ import {
 function onOpen() {
   const ui = DocumentApp.getUi();
   ui.createAddonMenu()
-    .addItem("Insert Song", "openSongDialog")
+    .addItem("Insert Song At Cursor", "openSongDialog")
     // .addItem("Don't overflow rows", "disableRowOverflowAcrossPages")
     .addToUi();
 }
