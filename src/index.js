@@ -10,7 +10,6 @@ function onOpen() {
   const ui = DocumentApp.getUi();
   ui.createAddonMenu()
     .addItem("Insert Song At Cursor", "openSongDialog")
-    // .addItem("Don't overflow rows", "disableRowOverflowAcrossPages")
     .addToUi();
 }
 
@@ -18,11 +17,32 @@ function onInstall() {
   onOpen();
 }
 
+function getInsertPointAtCursor() {
+  const cursor = DocumentApp.getActiveDocument().getCursor();
+  if (!cursor) {
+    throw new Error("Cannot find cursor");
+  }
+  const child = cursor.getElement();
+  const parent = child.getParent();
+  if (parent.getType() !== DocumentApp.ElementType.BODY_SECTION) {
+    throw new Error(
+      "Please place the cursor in the body of the document.\nNot in a table, header, footer, etc.",
+    );
+  }
+  return [parent, parent.getChildIndex(child)];
+}
+
 function openSongDialog() {
-  const html = HtmlService.createHtmlOutputFromFile("songDialog")
-    .setWidth(600)
-    .setHeight(425);
-  DocumentApp.getUi().showModalDialog(html, "Insert Song");
+  try {
+    // Test if the cursor is in a valid location
+    const [_parent, _childIndex] = getInsertPointAtCursor();
+    const html = HtmlService.createHtmlOutputFromFile("songDialog")
+      .setWidth(600)
+      .setHeight(425);
+    DocumentApp.getUi().showModalDialog(html, "Insert Song");
+  } catch (error) {
+    DocumentApp.getUi().alert(error.message);
+  }
 }
 
 function isSectionHeader(line) {
@@ -93,61 +113,30 @@ function formatParagraph(paragraph, previousWasChorus = false) {
   }
 }
 
-/*
-function disableRowOverflowAcrossPages() {
-  const doc = DocumentApp.getActiveDocument();
-  const documentId = doc.getId();
-  const { content } = Docs.Documents.get(documentId).body;
-  // Get the indices of all tables
-  const tableIndices = content.reduce((acc, element, index) => {
-    if (element.table) {
-      acc.push(index);
-    }
-    return acc;
-  }, []);
-
-  const requests = tableIndices.map((index) => {
-    return {
-      updateTableRowStyle: {
-        tableRowStyle: { preventOverflow: true },
-        tableStartLocation: { index },
-        fields: "preventOverflow",
-      },
-    };
-  });
-  Docs.Documents.batchUpdate({ requests }, documentId);
-}
-*/
-
 function insertSongTable(text) {
-  const doc = DocumentApp.getActiveDocument();
-  const cursor = doc.getCursor();
-  const parent = cursor.getElement().getParent();
-  const child = cursor.getElement();
-  if (parent.getType() !== DocumentApp.ElementType.BODY_SECTION) {
-    DocumentApp.getUi().alert(
-      "Please place the cursor in the body of the document.\nNot in a table, header, footer, etc.",
-    );
-    return;
-  }
-  const childIndex = parent.getChildIndex(child);
-  const table = parent.insertTable(childIndex + 1);
+  try {
+    const [parent, childIndex] = getInsertPointAtCursor();
+    const table = parent.insertTable(childIndex + 1);
 
-  const paragraphs = splitParagraphs(text);
-  let wasChorus = false;
-  for (let i = 0; i < paragraphs.length; i += 1) {
-    const row = table.appendTableRow();
-    const cell = row.appendTableCell();
-    cell.setAttributes(CellStyle);
-    const paragraph = cell.getChild(0);
-    paragraph.setText(paragraphs[i]);
-    formatParagraph(paragraph, wasChorus);
-    wasChorus = isChorus(paragraphs[i]);
-  }
+    const paragraphs = splitParagraphs(text);
+    let wasChorus = false;
+    for (let i = 0; i < paragraphs.length; i += 1) {
+      const row = table.appendTableRow();
+      const cell = row.appendTableCell();
+      cell.setAttributes(CellStyle);
+      const paragraph = cell.getChild(0);
+      paragraph.setText(paragraphs[i]);
+      formatParagraph(paragraph, wasChorus);
+      wasChorus = isChorus(paragraphs[i]);
+    }
 
-  const rangeBuilder = doc.newRange();
-  rangeBuilder.addElement(table);
-  doc.setSelection(rangeBuilder.build());
+    const doc = DocumentApp.getActiveDocument();
+    const rangeBuilder = doc.newRange();
+    rangeBuilder.addElement(table);
+    doc.setSelection(rangeBuilder.build());
+  } catch (error) {
+    DocumentApp.getUi().alert(error.message);
+  }
 }
 
 global.onOpen = onOpen;
