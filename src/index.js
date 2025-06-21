@@ -144,6 +144,10 @@ function insertSongTable(text) {
     formatParagraph(paragraph, wasChorus);
     wasChorus = isChorus(paragraphs[i]);
   }
+
+  const rangeBuilder = doc.newRange();
+  rangeBuilder.addElement(table);
+  doc.setSelection(rangeBuilder.build());
 }
 
 global.onOpen = onOpen;
