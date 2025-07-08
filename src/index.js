@@ -4,13 +4,26 @@ import {
   HeaderStyle,
   ChorusStyle,
   ChordStyle,
+  TableStyle,
 } from "./styles";
+
+const DEV = true;
 
 function onOpen() {
   const ui = DocumentApp.getUi();
-  ui.createAddonMenu()
-    .addItem("Insert Song At Cursor", "openSongDialog")
-    .addToUi();
+  const menu = ui
+    .createAddonMenu()
+    .addItem("Insert Song at Cursor", "openSongDialog");
+  if (DEV) {
+    menu
+      .addSeparator()
+      .addSubMenu(
+        ui
+          .createMenu("DEV")
+          .addItem("Print parent attributes", "printParentAttributes"),
+      );
+  }
+  menu.addToUi();
 }
 
 function onInstall() {
@@ -117,6 +130,7 @@ function insertSongTable(text) {
   try {
     const [parent, childIndex] = getInsertPointAtCursor();
     const table = parent.insertTable(childIndex + 1);
+    table.setAttributes(TableStyle);
 
     const paragraphs = splitParagraphs(text);
     let wasChorus = false;
@@ -139,8 +153,46 @@ function insertSongTable(text) {
   }
 }
 
+function getElementAtCursor(elementType) {
+  let currentElement = DocumentApp.getActiveDocument().getCursor().getElement();
+  while (currentElement) {
+    if (currentElement.getType() === elementType) {
+      return currentElement;
+    }
+    currentElement = currentElement.getParent();
+  }
+
+  throw new Error(`The cursor is not inside a ${elementType}`);
+}
+
+function getAttributeString(element) {
+  const attributes = element.getAttributes();
+  const attstring = Object.entries(attributes).reduce(
+    (total, currentAtt) => `${total}${currentAtt[0]}: ${currentAtt[1]}\n`,
+    `${element.getType()}\n\n`,
+  );
+  return attstring;
+}
+
+function printParentAttributes() {
+  const ui = DocumentApp.getUi();
+  let currentElement = DocumentApp.getActiveDocument().getCursor().getElement();
+  while (currentElement) {
+    const response = ui.alert(
+      `${getAttributeString(currentElement)}\n\nContinue?`,
+      ui.ButtonSet.YES_NO,
+    );
+    if (response === ui.Button.NO) {
+      break;
+    }
+    currentElement = currentElement.getParent();
+  }
+}
+
 global.onOpen = onOpen;
 global.onInstall = onInstall;
 global.openSongDialog = openSongDialog;
 global.insertSongTable = insertSongTable;
-// global.disableRowOverflowAcrossPages = disableRowOverflowAcrossPages;
+if (DEV) {
+  global.printParentAttributes = printParentAttributes;
+}
