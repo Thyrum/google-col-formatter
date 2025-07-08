@@ -11,7 +11,9 @@
     "postbuild": "npm run format",
     "upload": "npx clasp push",
     "deploy": "npm run build && npm run upload",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,8 @@
     "apps-script-oauth2": "github:googleworkspace/apps-script-oauth2"
   },
   "devDependencies": {
+    "source-map-loader": "^5.0.0",
+    "ts-loader": "^9.5.2",
     "@babel/core": "^7.22.11",
     "@babel/eslint-parser": "^7.22.11",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",

@@ -1,0 +1,204 @@
+function onOpen() {
+  const ui = DocumentApp.getUi();
+  ui.createMenu("COL Formatter")
+    .addItem("Format Selected", "formatSelected")
+    .addItem("Debug: Print Selection", "printSelection")
+    .addToUi();
+}
+
+function addTableCell(row, element) {
+  const cell = row.appendTableCell();
+  if (element.getType() === DocumentApp.ElementType.PARAGRAPH) {
+    cell.appendParagraph(element);
+  } else if (element.getType() === DocumentApp.ElementType.TABLE) {
+    cell.appendTable(element);
+  } else if (element.getType() === DocumentApp.ElementType.INLINE_IMAGE) {
+    cell.appendImage(element);
+  } else if (element.getType() === DocumentApp.ElementType.LIST_ITEM) {
+    cell.appendListItem(element);
+  } else {
+    return false;
+  }
+  cell.getChild(0).removeFromParent();
+  return true;
+}
+
+function printElement(element) {
+  let numChildren = -1;
+  if (typeof element.getNumChildren === "function") {
+    numChildren = element.getNumChildren();
+  }
+  if (typeof element.getText === "function") {
+    console.log(
+      `${element.getType().toString()} (${numChildren}):\n${element
+        .getText()
+        .toString()}`,
+    );
+    return;
+  }
+  console.log(`${element.getType().toString()} (${numChildren})`);
+}
+
+function printSelection() {
+  const doc = DocumentApp.getActiveDocument();
+  const selection = doc.getSelection();
+  if (!selection) {
+    DocumentApp.getUi().alert("Please select some text.");
+    return;
+  }
+  const elements = selection.getRangeElements();
+  elements.forEach((e) => {
+    const element = e.getElement();
+    printElement(element);
+  });
+}
+global.printSelection = printSelection;
+
+function moveParagraphsToTable(paragraphs, table) {
+  for (let i = 0; i < paragraphs.length; i += 1) {
+    console.log("Moving paragraphs to table");
+    printElement(paragraphs[i]);
+    const element = paragraphs[i];
+    element.removeFromParent();
+    const tableRow = table.appendTableRow();
+    addTableCell(tableRow, element);
+  }
+}
+
+function mergeWithPreviousElement(element) {
+  const prevElement = element.getPreviousSibling();
+  if (element.getType() === prevElement.getType()) {
+    if (prevElement.getType() === DocumentApp.ElementType.PARAGRAPH) {
+      prevElement.appendText("\r");
+    }
+    return element.merge();
+  }
+  return false;
+}
+
+function mergeChildren(element, childType) {
+  for (let i = element.getNumChildren() - 1; i > 0; i -= 1) {
+    if (element.getChild(i).getType() === childType) {
+      mergeWithPreviousElement(element.getChild(i));
+    }
+  }
+}
+
+function combineParagraphs(paragraphRange) {
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  const elements = [];
+  const range = paragraphRange.getRangeElements();
+
+  for (let i = 0; i < range.length; i += 1) {
+    const element = range[i].getElement();
+    let newElement = element;
+    if (element.getType() === DocumentApp.ElementType.TEXT) {
+      if (range[i].isPartial()) {
+        // The selection might start or end with a partially selected paragraph
+        const startIndex = range[i].getStartOffset();
+        const endIndex = range[i].getEndOffsetInclusive();
+        const text = element.getText().substring(startIndex, endIndex + 1);
+        range[i].getElement().asText().deleteText(startIndex, endIndex);
+        const parent = element.getParent();
+        const paragraphIndex = parent.getParent().getChildIndex(parent);
+        const newIndex = paragraphIndex + (startIndex === 0 ? 0 : 1);
+        newElement = parent.getParent().insertParagraph(newIndex, text);
+      } else {
+        const parent = element.getParent();
+        const paragraphIndex = parent.getParent().getChildIndex(parent);
+        newElement = parent
+          .getParent()
+          .insertParagraph(paragraphIndex, element);
+        element.removeFromParent();
+      }
+    }
+    if (i === 0 || !mergeWithPreviousElement(newElement)) {
+      elements.push(newElement);
+    }
+  }
+
+  elements.forEach((element) => {
+    if (element.getType() === DocumentApp.ElementType.PARAGRAPH) {
+      mergeChildren(element, DocumentApp.ElementType.TEXT);
+    }
+  });
+  return elements;
+}
+
+function findSplitPoint(paragraph) {
+  console.log("Tring to find the split point for:");
+  printElement(paragraph);
+  return -1;
+}
+
+function splitParagraph(paragraph, textIndex) {
+  const firstParagraph = paragraph
+    .getParent()
+    .insertParagraph(
+      paragraph.getParent().getChildIndex(paragraph),
+      paragraph.copy(),
+    );
+  const secondParagraph = paragraph;
+  firstParagraph
+    .editAsText()
+    .deleteText(textIndex - 1, firstParagraph.getText().length - 1);
+  secondParagraph.editAsText().deleteText(0, textIndex - 1);
+  return [firstParagraph, secondParagraph];
+}
+
+function splitParagraphs(paragraphs) {
+  const doc = DocumentApp.getActiveDocument();
+  const body = doc.getBody();
+  const elements = [];
+
+  for (let i = 0; i < paragraphs.length; i += 1) {
+    let element = paragraphs[i];
+    if (element.getType() === DocumentApp.ElementType.PARAGRAPH) {
+      let textIndex = findSplitPoint(element);
+      while (textIndex > -1) {
+        const [firstParagraph, secondParagraph] = splitParagraph(
+          element,
+          textIndex,
+        );
+        elements.push(firstParagraph);
+        element = secondParagraph;
+        textIndex = findSplitPoint(element);
+      }
+    }
+    elements.push(element);
+  }
+  return paragraphs;
+}
+
+function formatSelected() {
+  // Find the selected text
+  const doc = DocumentApp.getActiveDocument();
+  const selection = doc.getSelection();
+  if (!selection) {
+    DocumentApp.getUi().alert("Please select some text.");
+    return;
+  }
+  const elements = selection.getRangeElements();
+  if (!elements[0]) {
+    return;
+  }
+  elements.forEach((e) => {
+    const element = e.getElement();
+    printElement(element);
+    // element.removeFromParent();
+    // table.appendTableRow().appendTableCell().appendParagraph(element);
+  });
+  let paragraphs = combineParagraphs(selection);
+  paragraphs = splitParagraphs(paragraphs);
+  // Add a table at the beginning of the selection
+  const parent = paragraphs[0].getParent();
+  const table = doc.getBody().insertTable(parent.getChildIndex(paragraphs[0]));
+  moveParagraphsToTable(paragraphs, table);
+
+  // eslint-disable-next-line spaced-comment
+  //doc.setSelection(newRange);
+}
+
+global.onOpen = onOpen;
+global.formatSelected = formatSelected;

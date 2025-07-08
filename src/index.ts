@@ -30,7 +30,10 @@ function onInstall() {
   onOpen();
 }
 
-function getInsertPointAtCursor() {
+function getInsertPointAtCursor(): [
+  GoogleAppsScript.Document.Body,
+  GoogleAppsScript.Integer,
+] {
   const cursor = DocumentApp.getActiveDocument().getCursor();
   if (!cursor) {
     throw new Error("Cannot find cursor");
@@ -42,7 +45,7 @@ function getInsertPointAtCursor() {
       "Please place the cursor in the body of the document.\nNot in a table, header, footer, etc.",
     );
   }
-  return [parent, parent.getChildIndex(child)];
+  return [parent.asBody(), parent.getChildIndex(child)];
 }
 
 function openSongDialog() {
@@ -58,15 +61,15 @@ function openSongDialog() {
   }
 }
 
-function isSectionHeader(line) {
+function isSectionHeader(line: string) {
   return line.match(/^\[.*\].*$/);
 }
 
-function isChorus(paragraph) {
-  return paragraph.match(/^\[(Chorus|Refrein|CHORUS|REFREIN).*\].*$/m);
+function isChorus(paragraph: string) {
+  return /^\[(Chorus|Refrein|CHORUS|REFREIN).*\].*$/m.test(paragraph);
 }
 
-function isChordLine(line) {
+function isChordLine(line: string) {
   if (line.trim().length === 0) {
     return false;
   }
@@ -80,7 +83,7 @@ function isChordLine(line) {
   );
 }
 
-function splitParagraphs(text) {
+function splitParagraphs(text: string) {
   const paragraphs = text.split("\n\n");
   for (let i = 0; i < paragraphs.length; i += 1) {
     paragraphs[i] = paragraphs[i].trim();
@@ -96,7 +99,10 @@ function splitParagraphs(text) {
   return paragraphs;
 }
 
-function formatParagraph(paragraph, previousWasChorus = false) {
+function formatParagraph(
+  paragraph: GoogleAppsScript.Document.Paragraph,
+  previousWasChorus: boolean = false,
+) {
   const text = paragraph.editAsText();
   text.setAttributes(ParagraphStyle);
   const lines = text.getText().split("\r");
@@ -126,7 +132,7 @@ function formatParagraph(paragraph, previousWasChorus = false) {
   }
 }
 
-function insertSongTable(text) {
+function insertSongTable(text: string) {
   try {
     const [parent, childIndex] = getInsertPointAtCursor();
     const table = parent.insertTable(childIndex + 1);
@@ -138,7 +144,7 @@ function insertSongTable(text) {
       const row = table.appendTableRow();
       const cell = row.appendTableCell();
       cell.setAttributes(CellStyle);
-      const paragraph = cell.getChild(0);
+      const paragraph = cell.getChild(0).asParagraph();
       paragraph.setText(paragraphs[i]);
       formatParagraph(paragraph, wasChorus);
       wasChorus = isChorus(paragraphs[i]);
@@ -153,7 +159,9 @@ function insertSongTable(text) {
   }
 }
 
-function getElementAtCursor(elementType) {
+function getElementAtCursor(
+  elementType: GoogleAppsScript.Document.ElementType,
+) {
   let currentElement = DocumentApp.getActiveDocument().getCursor().getElement();
   while (currentElement) {
     if (currentElement.getType() === elementType) {
@@ -165,7 +173,7 @@ function getElementAtCursor(elementType) {
   throw new Error(`The cursor is not inside a ${elementType}`);
 }
 
-function getAttributeString(element) {
+function getAttributeString(element: GoogleAppsScript.Document.Element) {
   const attributes = element.getAttributes();
   const attstring = Object.entries(attributes).reduce(
     (total, currentAtt) => `${total}${currentAtt[0]}: ${currentAtt[1]}\n`,
