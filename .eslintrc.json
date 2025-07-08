@@ -1,47 +1,56 @@
 {
-  "root": true,
-  "parser": "@babel/eslint-parser",
-  "plugins": ["html", "prettier", "googleappsscript"],
-  "extends": [
-    "airbnb-base",
-    "eslint:recommended",
-    "plugin:prettier/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:jest/recommended"
-  ],
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": 12,
-    "sourceType": "module"
-  },
-  "env": {
-    "browser": true,
-    "es6": true,
-    "node": true,
-    "jest": true,
-    "googleappsscript/googleappsscript": true
-  },
-  "ignorePatterns": ["node_modules/"],
-  "globals": {
-    "OAuth1": true,
-    "OAuth2": true
-  },
-  "rules": {
-    "prettier/prettier": [
-      "error"
-    ],
-    "no-await-in-loop": "off",
-    "import/prefer-default-export": "off",
-    "no-unused-vars": [
-      1,
-      {
-        "ignoreRestSiblings": true,
-        "argsIgnorePattern": "res|next|^err|^ignore|^_",
-        "caughtErrors": "none"
-      }
-    ]
-  }
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"plugins": [
+		"html",
+		"prettier",
+		"googleappsscript",
+		"@typescript-eslint"
+	],
+	"extends": [
+		"airbnb-base",
+		"eslint:recommended",
+		"plugin:prettier/recommended",
+		"plugin:import/errors",
+		"plugin:import/warnings",
+		"plugin:jest/recommended",
+		"plugin:@typescript-eslint/recommended"
+	],
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": 12,
+		"sourceType": "module"
+	},
+	"env": {
+		"browser": true,
+		"es6": true,
+		"node": true,
+		"jest": true,
+		"googleappsscript/googleappsscript": true
+	},
+	"ignorePatterns": [
+		"node_modules/"
+	],
+	"globals": {
+		"OAuth1": true,
+		"OAuth2": true
+	},
+	"rules": {
+		"prettier/prettier": [
+			"error"
+		],
+		"no-await-in-loop": "off",
+		"import/prefer-default-export": "off",
+		"@typescript-eslint/no-unused-vars": [
+			1,
+			{
+				"ignoreRestSiblings": true,
+				"argsIgnorePattern": "res|next|^err|^ignore|^_",
+				"varsIgnorePattern": "^_",
+				"caughtErrors": "none"
+			}
+		]
+	}
 }
